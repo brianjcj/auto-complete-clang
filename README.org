@@ -1,0 +1,46 @@
+
+* Introduction
+  
+  The AC sources for Clang.
+  Combine the power of AC, Clang and Yasnippet.
+
+  if you don't have Yasnippet, I recommend you install one.
+  if you don't want to install Yasnippet, you can try snippet.el instead.
+  if you don't install any of them, this script will still work for you any way.
+
+* Install
+
+  Here is my configurations for AC and auto-complete-clang for your reference.
+
+  #+BEGIN_EXAMPLE
+(add-to-list 'load-path (concat myoptdir "AC"))
+(require 'auto-complete-config)
+(add-to-list 'ac-dictionary-directories (concat myoptdir "AC/ac-dict"))
+
+(require 'auto-complete-clang)
+
+(setq ac-auto-start nil)
+(setq ac-quick-help-delay 0.5)
+;; (ac-set-trigger-key "TAB")
+;; (define-key ac-mode-map  [(control tab)] 'auto-complete)
+(define-key ac-mode-map  [(control tab)] 'auto-complete)
+(defun my-ac-config ()
+  (setq-default ac-sources '(ac-source-abbrev ac-source-dictionary ac-source-words-in-same-mode-buffers))
+  (add-hook 'emacs-lisp-mode-hook 'ac-emacs-lisp-mode-setup)
+  ;; (add-hook 'c-mode-common-hook 'ac-cc-mode-setup)
+  (add-hook 'ruby-mode-hook 'ac-ruby-mode-setup)
+  (add-hook 'css-mode-hook 'ac-css-mode-setup)
+  (add-hook 'auto-complete-mode-hook 'ac-common-setup)
+  (global-auto-complete-mode t))
+(defun my-ac-cc-mode-setup ()
+  (setq ac-sources (append '(ac-source-clang ac-source-yasnippet) ac-sources)))
+(add-hook 'c-mode-common-hook 'my-ac-cc-mode-setup)
+;; ac-source-gtags
+(my-ac-config)
+
+  #+END_EXAMPLE
+
+* Screenshot
+
+  Refer to the screenshot folder.
+
