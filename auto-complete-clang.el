@@ -4,7 +4,7 @@
 
 ;; Author: Brian Jiang <brianjcj@gmail.com>
 ;; Keywords: completion, convenience
-;; Version: 0.1
+;; Version: 0.1a
 
 ;; This program is free software; you can redistribute it and/or modify
 ;; it under the terms of the GNU General Public License as published by
@@ -156,7 +156,7 @@ This variable will typically contain include paths, e.g., -I~/MyProject."
 
 (defsubst ac-clang-build-complete-args (pos)
   (append '("-cc1" "-fsyntax-only")
-          ac-clang-flags
+          (list ac-clang-flags)
           (when (stringp ac-clang-prefix-header)
             (list "-include-pch" (expand-file-name ac-clang-prefix-header)))
           '("-code-completion-at")
@@ -197,6 +197,9 @@ This variable will typically contain include paths, e.g., -I~/MyProject."
          ac-prefix
          (ac-clang-build-complete-args (- (point) (length ac-prefix)))))
 
+
+(defvar ac-template-start-point nil)
+(defvar ac-template-candidates (list "ok" "no" "yes:)"))
 
 (defun ac-clang-action ()
   (interactive)
@@ -265,8 +268,6 @@ This variable will typically contain include paths, e.g., -I~/MyProject."
           (t
            sl))))
 
-(defvar ac-template-start-point nil)
-(defvar ac-template-candidates (list "ok" "no" "yes:)"))
 
 (defun ac-template-candidate ()
   ac-template-candidates)
