@@ -225,8 +225,12 @@ This variable will typically contain include paths, e.g., -I~/MyProject."
   (or (ac-prefix-symbol)
       (let ((c (char-before)))
         (when (or (eq ?\. c)
+                  ;; ->
                   (and (eq ?> c)
-                       (eq ?- (char-before (1- (point))))))
+                       (eq ?- (char-before (1- (point)))))
+                  ;; ::
+                  (and (eq ?: c)
+                       (eq ?: (char-before (1- (point))))))
           (point)))))
 
 (ac-define-source clang
