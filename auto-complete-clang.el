@@ -4,7 +4,7 @@
 
 ;; Author: Brian Jiang <brianjcj@gmail.com>
 ;; Keywords: completion, convenience
-;; Version: 0.1a
+;; Version: 0.1b
 
 ;; This program is free software; you can redistribute it and/or modify
 ;; it under the terms of the GNU General Public License as published by
@@ -47,11 +47,11 @@ clang can only complete correctly when the buffer has been saved."
 
 
 ;;; Extra compilation flags to pass to clang.
-(defcustom ac-clang-flags ""
+(defcustom ac-clang-flags nil
   "Extra flags to pass to the Clang executable.
-This variable will typically contain include paths, e.g., -I~/MyProject."
-  :type 'string
-  :group 'auto-complete)
+This variable will typically contain include paths, e.g., ( \"-I~/MyProject\", \"-I.\" )."
+    :group 'auto-complete
+  :type '(repeat (string :tag "Argument" "")))
 
 ;;; The prefix header to use with Clang code completion. 
 (defvar ac-clang-prefix-header nil)
@@ -120,7 +120,7 @@ This variable will typically contain include paths, e.g., -I~/MyProject."
 (defun ac-clang-handle-error (res args)
   (goto-char (point-min))
   (let* ((buf (get-buffer-create ac-clang-error-buffer-name))
-         (cmd (concat ac-clang-executable (mapconcat 'identity args " ")))
+         (cmd (concat ac-clang-executable " " (mapconcat 'identity args " ")))
          (pattern (format ac-clang-completion-pattern ""))
          (err (if (re-search-forward pattern nil t)
                   (buffer-substring-no-properties (point-min)
@@ -156,7 +156,7 @@ This variable will typically contain include paths, e.g., -I~/MyProject."
 
 (defsubst ac-clang-build-complete-args (pos)
   (append '("-cc1" "-fsyntax-only")
-          (list ac-clang-flags)
+          ac-clang-flags
           (when (stringp ac-clang-prefix-header)
             (list "-include-pch" (expand-file-name ac-clang-prefix-header)))
           '("-code-completion-at")
@@ -205,12 +205,17 @@ This variable will typically contain include paths, e.g., -I~/MyProject."
   (interactive)
   ;; (ac-last-quick-help)
   (let ((help (ac-clang-clean-document (get-text-property 0 'ac-clang-help (cdr ac-last-completion))))
-        (candidates (list)) ss h)
+        (candidates (list)) ss ret-fn args idx)
     (setq ss (split-string help "\n"))
     (dolist (s ss)
       (when (string-match "^\\(.*\\)\\((.*)\\).*$" s)
-        (push (propertize (match-string 2 s) 'ac-clang-help (match-string 1 s))
-              candidates)))
+        (setq ret-fn (match-string 1 s)
+              args (match-string 2 s))
+        (push (propertize args 'ac-clang-help ret-fn) candidates)
+        (when (setq idx (string-match "\{#" args))
+          (push (propertize (concat (substring args 0 idx) ")") 'ac-clang-help ret-fn) candidates))
+        (when (setq idx (string-match ", \\.\\.\\." args))
+          (push (propertize (concat (substring args 0 idx) ")") 'ac-clang-help ret-fn) candidates))))
     (when candidates
       (setq candidates (delete-dups candidates))
       (setq candidates (nreverse candidates))
@@ -283,7 +288,7 @@ This variable will typically contain include paths, e.g., -I~/MyProject."
       (setq s (buffer-substring-no-properties ac-template-start-point pos))
       (setq s (replace-regexp-in-string "[()]" "" s))
       (unless (string= s "")
-        (setq s (replace-regexp-in-string "{#" "\\{" s))
+        (setq s (replace-regexp-in-string "{#" "\\\\{" s))
         (setq s (replace-regexp-in-string "#}" "" s))
         (setq sl (ac-clang-split-args s))
         ;; todo: take care undo-list
