@@ -4,7 +4,7 @@
 
 ;; Author: Brian Jiang <brianjcj@gmail.com>
 ;; Keywords: completion, convenience
-;; Version: 0.1b
+;; Version: 0.1c
 
 ;; This program is free software; you can redistribute it and/or modify
 ;; it under the terms of the GNU General Public License as published by
@@ -50,7 +50,7 @@ clang can only complete correctly when the buffer has been saved."
 (defcustom ac-clang-flags nil
   "Extra flags to pass to the Clang executable.
 This variable will typically contain include paths, e.g., ( \"-I~/MyProject\", \"-I.\" )."
-    :group 'auto-complete
+  :group 'auto-complete
   :type '(repeat (string :tag "Argument" "")))
 
 ;;; The prefix header to use with Clang code completion. 
@@ -68,6 +68,23 @@ This variable will typically contain include paths, e.g., ( \"-I~/MyProject\", \
          (setq ac-clang-prefix-header nil))
         (t
          (setq ac-clang-prefix-header ph))))
+
+;;; Set a new cflags for clang
+(defun ac-clang-set-cflags ()
+  "set new cflags for clang from input string"
+  (interactive)
+  (setq ac-clang-flags (split-string (read-string "New cflags: "))))
+
+;;; Set new cflags from shell command output
+(defun ac-clang-set-cflags-from-shell-command ()
+  "set new cflags for ac-clang from shell command output"
+  (interactive)
+  (setq ac-clang-flags
+    (split-string
+     (shell-command-to-string
+      (read-shell-command "Shell command: " nil nil
+                          (and buffer-file-name
+                               (file-relative-name buffer-file-name)))))))
 
 (defconst ac-clang-completion-pattern
   "^COMPLETION: \\(%s[^\s\n:]*\\)\\(?: : \\)*\\(.*$\\)")
