@@ -4,7 +4,7 @@
 
 ;; Author: Brian Jiang <brianjcj@gmail.com>
 ;; Keywords: completion, convenience
-;; Version: 0.1c
+;; Version: 0.1d
 
 ;; This program is free software; you can redistribute it and/or modify
 ;; it under the terms of the GNU General Public License as published by
@@ -38,9 +38,11 @@
   :group 'auto-complete
   :type 'file)
 
-(defcustom ac-clang-auto-save t
+(defcustom ac-clang-auto-save nil
   "*Determines whether to save the buffer when retrieving completions.
-clang can only complete correctly when the buffer has been saved."
+Old version of clang can only complete correctly when the buffer has been saved.
+Now clang can parse the codes from standard input so that we can turn this option
+to Off. If you are still using the old clang, turn it on!"
   :group 'auto-complete
   :type '(choice (const :tag "Off" nil)
                  (const :tag "On" t)))
@@ -157,8 +159,14 @@ This variable will typically contain include paths, e.g., ( \"-I~/MyProject\", \
         (goto-char (point-min))))))
 
 (defun ac-clang-call-process (prefix &rest args)
-  (with-temp-buffer
-    (let ((res (apply 'call-process ac-clang-executable nil t nil args)))
+  (let ((buf (get-buffer-create "*clang-output*"))
+        res)
+    (with-current-buffer buf (erase-buffer))
+    (setq res (if ac-clang-auto-save
+                  (apply 'call-process ac-clang-executable nil buf nil args)
+                (apply 'call-process-region (point-min) (point-max)
+                       ac-clang-executable nil buf nil args)))
+    (with-current-buffer buf
       (unless (eq 0 res)
         (ac-clang-handle-error res args))
       ;; Still try to get any useful input.
@@ -168,17 +176,27 @@ This variable will typically contain include paths, e.g., ( \"-I~/MyProject\", \
 (defsubst ac-clang-build-location (pos)
   (save-excursion
     (goto-char pos)
-    (format "%s:%d:%d" buffer-file-name (line-number-at-pos)
+    (format "%s:%d:%d" (if ac-clang-auto-save buffer-file-name "-") (line-number-at-pos)
             (1+ (current-column)))))
+
+(defsubst ac-clang-lang-option ()
+  (cond ((eq major-mode 'c++-mode)
+         "c++")
+        ((eq major-mode 'c-mode)
+         "c")
+        (t
+         "c++")))
 
 (defsubst ac-clang-build-complete-args (pos)
   (append '("-cc1" "-fsyntax-only")
+          (unless ac-clang-auto-save
+            (list "-x" (ac-clang-lang-option)))
           ac-clang-flags
           (when (stringp ac-clang-prefix-header)
             (list "-include-pch" (expand-file-name ac-clang-prefix-header)))
           '("-code-completion-at")
           (list (ac-clang-build-location pos))
-          (list buffer-file-name)))
+          (list (if ac-clang-auto-save buffer-file-name "-"))))
 
 
 (defsubst ac-clang-clean-document (s)
@@ -210,9 +228,11 @@ This variable will typically contain include paths, e.g., ( \"-I~/MyProject\", \
   (and ac-clang-auto-save
        (buffer-modified-p)
        (basic-save-buffer))
-  (apply 'ac-clang-call-process
-         ac-prefix
-         (ac-clang-build-complete-args (- (point) (length ac-prefix)))))
+  (save-restriction
+    (widen)
+    (apply 'ac-clang-call-process
+           ac-prefix
+           (ac-clang-build-complete-args (- (point) (length ac-prefix))))))
 
 
 (defvar ac-template-start-point nil)
