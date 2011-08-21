@@ -47,6 +47,10 @@ to Off. If you are still using the old clang, turn it on!"
   :type '(choice (const :tag "Off" nil)
                  (const :tag "On" t)))
 
+(defcustom ac-clang-lang-option-function nil
+  "*function to return the lang type for option -x."
+  :group 'auto-complete
+  :type 'function)
 
 ;;; Extra compilation flags to pass to clang.
 (defcustom ac-clang-flags nil
@@ -180,12 +184,19 @@ This variable will typically contain include paths, e.g., ( \"-I~/MyProject\", \
             (1+ (current-column)))))
 
 (defsubst ac-clang-lang-option ()
-  (cond ((eq major-mode 'c++-mode)
-         "c++")
-        ((eq major-mode 'c-mode)
-         "c")
-        (t
-         "c++")))
+  (or (and ac-clang-lang-option-function
+           (funcall ac-clang-lang-option-function))
+      (cond ((eq major-mode 'c++-mode)
+             "c++")
+            ((eq major-mode 'c-mode)
+             "c")
+            ((eq major-mode 'objc-mode)
+             (cond ((string= "m" (file-name-extension (buffer-file-name)))
+                    "objective-c")
+                   (t
+                    "objective-c++")))
+            (t
+             "c++"))))
 
 (defsubst ac-clang-build-complete-args (pos)
   (append '("-cc1" "-fsyntax-only")
