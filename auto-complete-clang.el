@@ -4,7 +4,7 @@
 
 ;; Author: Brian Jiang <brianjcj@gmail.com>
 ;; Keywords: completion, convenience
-;; Version: 0.1d
+;; Version: 0.1e
 
 ;; This program is free software; you can redistribute it and/or modify
 ;; it under the terms of the GNU General Public License as published by
@@ -181,7 +181,7 @@ This variable will typically contain include paths, e.g., ( \"-I~/MyProject\", \
   (save-excursion
     (goto-char pos)
     (format "%s:%d:%d" (if ac-clang-auto-save buffer-file-name "-") (line-number-at-pos)
-            (1+ (current-column)))))
+            (1+ (- (point) (line-beginning-position))))))
 
 (defsubst ac-clang-lang-option ()
   (or (and ac-clang-lang-option-function
