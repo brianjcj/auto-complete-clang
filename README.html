@@ -1,13 +1,13 @@
-<?xml version="1.0" encoding="iso-8859-1"?>
+<?xml version="1.0" encoding="utf-8"?>
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
                "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml"
 lang="en" xml:lang="en">
 <head>
 <title>README</title>
-<meta http-equiv="Content-Type" content="text/html;charset=iso-8859-1"/>
+<meta http-equiv="Content-Type" content="text/html;charset=utf-8"/>
 <meta name="generator" content="Org-mode"/>
-<meta name="generated" content="2011-08-21 03:19:31 CST"/>
+<meta name="generated" content="2012-01-06 22:28:33 CST"/>
 <meta name="author" content="brianjcj"/>
 <meta name="description" content=""/>
 <meta name="keywords" content=""/>
@@ -21,6 +21,9 @@ lang="en" xml:lang="en">
   .target { }
   .timestamp { color: #bebebe; }
   .timestamp-kwd { color: #5f9ea0; }
+  .right  {margin-left:auto; margin-right:0px;  text-align:right;}
+  .left   {margin-left:0px;  margin-right:auto; text-align:left;}
+  .center {margin-left:auto; margin-right:auto; text-align:center;}
   p.verse { margin-left: 3% }
   pre {
 	border: 1pt solid #AEBDCC;
@@ -31,10 +34,17 @@ lang="en" xml:lang="en">
         overflow:auto;
   }
   table { border-collapse: collapse; }
-  td, th { vertical-align: top; }
+  td, th { vertical-align: top;  }
+  th.right  { text-align:center;  }
+  th.left   { text-align:center;   }
+  th.center { text-align:center; }
+  td.right  { text-align:right;  }
+  td.left   { text-align:left;   }
+  td.center { text-align:center; }
   dt { font-weight: bold; }
   div.figure { padding: 0.5em; }
   div.figure p { text-align: center; }
+  textarea { overflow-x: auto; }
   .linenr { font-size:smaller }
   .code-highlighted {background-color:#ffff00;}
   .org-info-js_info-navigation { border-style:none; }
@@ -66,10 +76,15 @@ lang="en" xml:lang="en">
  }
 /*]]>*///-->
 </script>
+
 </head>
 <body>
-<div id="content">
 
+<div id="preamble">
+
+</div>
+
+<div id="content">
 <h1 class="title">README</h1>
 
 
@@ -81,6 +96,7 @@ lang="en" xml:lang="en">
 <li><a href="#sec-2">2 Install </a></li>
 <li><a href="#sec-3">3 Screenshot </a></li>
 <li><a href="#sec-4">4 Note </a></li>
+<li><a href="#sec-5">5 Troubleshooting </a></li>
 </ul>
 </div>
 </div>
@@ -90,14 +106,14 @@ lang="en" xml:lang="en">
 <div class="outline-text-2" id="text-1">
 
 
-<p>
-The AC sources for Clang.
-Combine the power of AC, Clang and Yasnippet.
+<p>  
+  The AC sources for Clang.
+  Combine the power of AC, Clang and Yasnippet.
 </p>
 <p>
-if you don't have Yasnippet, I recommend you install one.
-if you don't want to install Yasnippet, you can try snippet.el instead.
-if you don't install any of them, this script will still work for you any way.
+  if you don't have Yasnippet, I recommend you install one.
+  if you don't want to install Yasnippet, you can try snippet.el instead.
+  if you don't install any of them, this script will still work for you any way.
 </p>
 </div>
 
@@ -109,7 +125,7 @@ if you don't install any of them, this script will still work for you any way.
 
 
 <p>
-Here is my configurations for AC and auto-complete-clang for your reference.
+  Here is my configurations for AC and auto-complete-clang for your reference.
 </p>
 
 
@@ -154,7 +170,7 @@ Here is my configurations for AC and auto-complete-clang for your reference.
 
 
 <p>
-Refer to the screenshot folder.
+  Refer to the screenshot folder.
 </p>
 </div>
 
@@ -166,25 +182,108 @@ Refer to the screenshot folder.
 
 
 <ul>
-<li>
-Now clang is able to parse codes from standard output. Saving the
-file before parsing is no longer necessary. So the default value of
-ac-clang-auto-save is now changed to nil. If you still use the old
-version of clang and this may not work for you. In this case, you
-can change the ac-clang-auto-save back to t.
+<li>Now clang is able to parse codes from standard output. Saving the
+   file before parsing is no longer necessary. So the default value of
+   ac-clang-auto-save is now changed to nil. If you still use the old
+   version of clang and this may not work for you. In this case, you
+   can change the ac-clang-auto-save back to t.
+</li>
+</ul>
+
+
+
+</div>
+
+</div>
+
+<div id="outline-container-5" class="outline-2">
+<h2 id="sec-5"><span class="section-number-2">5</span> Troubleshooting </h2>
+<div class="outline-text-2" id="text-5">
+
+
+<ul>
+<li>clang fails to find the standard inlcude files?
+
+<p>
+    It is because clang's include file search path is not correct. Here is the solution:
+</p><ul>
+<li>find out the include file search pathes of your g++:
+
+
+
+
+<pre class="example">echo "" | g++ -v -x c++ -E -
+</pre>
+
+
+
+<p>
+       you wil get something like this:
+</p>
+
+
+
+<pre class="example">#include "..." search starts here：
+#include &lt;...&gt; search starts here：
+ /usr/include/c++/4.6
+ /usr/include/c++/4.6/x86_64-linux-gnu/.
+ /usr/include/c++/4.6/backward
+ /usr/lib/gcc/x86_64-linux-gnu/4.6.1/include
+ /usr/local/include
+ /usr/lib/gcc/x86_64-linux-gnu/4.6.1/include-fixed
+ /usr/include/x86_64-linux-gnu
+ /usr/include
+End of search list.
+</pre>
+
+
+</li>
+<li>setting the ac-clang-flags to include these default include pathes.
+       e.g.,
+
+
+
+
+<pre class="example">(setq ac-clang-flags
+      (mapcar (lambda (item)(concat "-I" item))
+              (split-string
+               "
+ /usr/include/c++/4.6
+ /usr/include/c++/4.6/x86_64-linux-gnu/.
+ /usr/include/c++/4.6/backward
+ /usr/lib/gcc/x86_64-linux-gnu/4.6.1/include
+ /usr/local/include
+ /usr/lib/gcc/x86_64-linux-gnu/4.6.1/include-fixed
+ /usr/include/x86_64-linux-gnu
+ /usr/include
+"
+               )))
+</pre>
+
+
 
 
 </li>
 </ul>
-</div>
-</div>
-<div id="postamble">
-<p class="author"> Author: brianjcj
-<a href="mailto:brianjcj@brianjcj">&lt;brianjcj@brianjcj&gt;</a>
+
+<p>    You can put it into your .emacs file.
 </p>
-<p class="date"> Date: 2011-08-21 03:19:31 CST</p>
-<p class="creator">HTML generated by org-mode 6.33x in emacs 23</p>
+<p>
+    Then code completion works just fine!
+</p></li>
+</ul>
+
+
 </div>
+</div>
+</div>
+
+<div id="postamble">
+<p class="date">Date: 2012-01-06 22:28:33 CST</p>
+<p class="author">Author: brianjcj</p>
+<p class="creator">Org version 7.7 with Emacs version 24</p>
+<a href="http://validator.w3.org/check?uri=referer">Validate XHTML 1.0</a>
+
 </div>
 </body>
 </html>

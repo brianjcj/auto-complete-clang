@@ -12,33 +12,33 @@
 
   Here is my configurations for AC and auto-complete-clang for your reference.
 
-  #+BEGIN_EXAMPLE
-(add-to-list 'load-path (concat myoptdir "AC"))
-(require 'auto-complete-config)
-(add-to-list 'ac-dictionary-directories (concat myoptdir "AC/ac-dict"))
-
-(require 'auto-complete-clang)
-
-(setq ac-auto-start nil)
-(setq ac-quick-help-delay 0.5)
-;; (ac-set-trigger-key "TAB")
-;; (define-key ac-mode-map  [(control tab)] 'auto-complete)
-(define-key ac-mode-map  [(control tab)] 'auto-complete)
-(defun my-ac-config ()
-  (setq-default ac-sources '(ac-source-abbrev ac-source-dictionary ac-source-words-in-same-mode-buffers))
-  (add-hook 'emacs-lisp-mode-hook 'ac-emacs-lisp-mode-setup)
-  ;; (add-hook 'c-mode-common-hook 'ac-cc-mode-setup)
-  (add-hook 'ruby-mode-hook 'ac-ruby-mode-setup)
-  (add-hook 'css-mode-hook 'ac-css-mode-setup)
-  (add-hook 'auto-complete-mode-hook 'ac-common-setup)
-  (global-auto-complete-mode t))
-(defun my-ac-cc-mode-setup ()
-  (setq ac-sources (append '(ac-source-clang ac-source-yasnippet) ac-sources)))
-(add-hook 'c-mode-common-hook 'my-ac-cc-mode-setup)
-;; ac-source-gtags
-(my-ac-config)
-
-  #+END_EXAMPLE
+  #+BEGIN_SRC emacs-lisp
+    (add-to-list 'load-path (concat myoptdir "AC"))
+    (require 'auto-complete-config)
+    (add-to-list 'ac-dictionary-directories (concat myoptdir "AC/ac-dict"))
+    
+    (require 'auto-complete-clang)
+    
+    (setq ac-auto-start nil)
+    (setq ac-quick-help-delay 0.5)
+    ;; (ac-set-trigger-key "TAB")
+    ;; (define-key ac-mode-map  [(control tab)] 'auto-complete)
+    (define-key ac-mode-map  [(control tab)] 'auto-complete)
+    (defun my-ac-config ()
+      (setq-default ac-sources '(ac-source-abbrev ac-source-dictionary ac-source-words-in-same-mode-buffers))
+      (add-hook 'emacs-lisp-mode-hook 'ac-emacs-lisp-mode-setup)
+      ;; (add-hook 'c-mode-common-hook 'ac-cc-mode-setup)
+      (add-hook 'ruby-mode-hook 'ac-ruby-mode-setup)
+      (add-hook 'css-mode-hook 'ac-css-mode-setup)
+      (add-hook 'auto-complete-mode-hook 'ac-common-setup)
+      (global-auto-complete-mode t))
+    (defun my-ac-cc-mode-setup ()
+      (setq ac-sources (append '(ac-source-clang ac-source-yasnippet) ac-sources)))
+    (add-hook 'c-mode-common-hook 'my-ac-cc-mode-setup)
+    ;; ac-source-gtags
+    (my-ac-config)
+    
+  #+END_SRC
 
 * Screenshot
 
@@ -52,4 +52,54 @@
    version of clang and this may not work for you. In this case, you
    can change the ac-clang-auto-save back to t.
 
+
+* Troubleshooting
+
+  - clang fails to find the standard inlcude files?
+
+    It is because clang's include file search path is not correct. Here is the solution:
+    - find out the include file search pathes of your g++:
+
+       #+BEGIN_EXAMPLE
+echo "" | g++ -v -x c++ -E -
+       #+END_EXAMPLE
+
+       you wil get something like this:
+
+       #+BEGIN_EXAMPLE
+#include "..." search starts here：
+#include <...> search starts here：
+ /usr/include/c++/4.6
+ /usr/include/c++/4.6/x86_64-linux-gnu/.
+ /usr/include/c++/4.6/backward
+ /usr/lib/gcc/x86_64-linux-gnu/4.6.1/include
+ /usr/local/include
+ /usr/lib/gcc/x86_64-linux-gnu/4.6.1/include-fixed
+ /usr/include/x86_64-linux-gnu
+ /usr/include
+End of search list.
+       #+END_EXAMPLE
+    - setting the ac-clang-flags to include these default include pathes.
+       e.g.,
+
+       #+BEGIN_SRC emacs-lisp
+(setq ac-clang-flags
+      (mapcar (lambda (item)(concat "-I" item))
+              (split-string
+               "
+ /usr/include/c++/4.6
+ /usr/include/c++/4.6/x86_64-linux-gnu/.
+ /usr/include/c++/4.6/backward
+ /usr/lib/gcc/x86_64-linux-gnu/4.6.1/include
+ /usr/local/include
+ /usr/lib/gcc/x86_64-linux-gnu/4.6.1/include-fixed
+ /usr/include/x86_64-linux-gnu
+ /usr/include
+"
+               )))
+       #+END_SRC
+
+    You can put it into your .emacs file.
+
+    Then code completion works just fine!
 
