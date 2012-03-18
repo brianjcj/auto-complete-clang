@@ -236,14 +236,17 @@ This variable will typically contain include paths, e.g., ( \"-I~/MyProject\", \
   :group 'auto-complete)
 
 (defun ac-clang-candidate ()
-  (and ac-clang-auto-save
-       (buffer-modified-p)
-       (basic-save-buffer))
-  (save-restriction
-    (widen)
-    (apply 'ac-clang-call-process
-           ac-prefix
-           (ac-clang-build-complete-args (- (point) (length ac-prefix))))))
+  (unless (memq (get-text-property (point) 'face)
+                '(font-lock-comment-face
+                  font-lock-comment-delimiter-face))
+    (and ac-clang-auto-save
+         (buffer-modified-p)
+         (basic-save-buffer))
+    (save-restriction
+      (widen)
+      (apply 'ac-clang-call-process
+             ac-prefix
+             (ac-clang-build-complete-args (- (point) (length ac-prefix)))))))
 
 
 (defvar ac-template-start-point nil)
