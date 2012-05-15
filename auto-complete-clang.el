@@ -238,7 +238,8 @@ This variable will typically contain include paths, e.g., ( \"-I~/MyProject\", \
 (defun ac-clang-candidate ()
   (unless (memq (get-text-property (point) 'face)
                 '(font-lock-comment-face
-                  font-lock-comment-delimiter-face))
+                  font-lock-comment-delimiter-face
+                  font-lock-string-face))
     (and ac-clang-auto-save
          (buffer-modified-p)
          (basic-save-buffer))
