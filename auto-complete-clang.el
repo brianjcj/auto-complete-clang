@@ -58,6 +58,7 @@ to Off. If you are still using the old clang, turn it on!"
 This variable will typically contain include paths, e.g., ( \"-I~/MyProject\", \"-I.\" )."
   :group 'auto-complete
   :type '(repeat (string :tag "Argument" "")))
+(put 'ac-clang-flags 'safe-local-variable 'listp)
 
 ;;; The prefix header to use with Clang code completion. 
 (defvar ac-clang-prefix-header nil)
