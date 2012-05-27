@@ -4,7 +4,7 @@
 
 ;; Author: Brian Jiang <brianjcj@gmail.com>
 ;; Keywords: completion, convenience
-;; Version: 0.1f
+;; Version: 0.1g
 
 ;; This program is free software; you can redistribute it and/or modify
 ;; it under the terms of the GNU General Public License as published by
@@ -310,14 +310,15 @@ This variable will typically contain include paths, e.g., ( \"-I~/MyProject\", \
 
 (defun ac-clang-split-args (s)
   (let ((sl (split-string s ", *")))
-    (cond ((string-match "<" s)
+    (cond ((string-match "<\\|(" s)
            (let ((res (list)) (pre "") subs)
              (while sl
                (setq subs (pop sl))
                (unless (string= pre "")
                  (setq subs (concat pre ", " subs))
                  (setq pre ""))
-               (cond ((ac-clang-same-count-in-string ?\< ?\> subs)
+               (cond ((and (ac-clang-same-count-in-string ?\< ?\> subs)
+                           (ac-clang-same-count-in-string ?\( ?\) subs))
                       (push subs res))
                      (t
                       (setq pre subs))))
