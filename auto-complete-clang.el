@@ -58,6 +58,7 @@ to Off. If you are still using the old clang, turn it on!"
 This variable will typically contain include paths, e.g., ( \"-I~/MyProject\", \"-I.\" )."
   :group 'auto-complete
   :type '(repeat (string :tag "Argument" "")))
+(put 'ac-clang-flags 'safe-local-variable 'listp)
 
 ;;; The prefix header to use with Clang code completion. 
 (defvar ac-clang-prefix-header nil)
@@ -222,14 +223,18 @@ This variable will typically contain include paths, e.g., ( \"-I~/MyProject\", \
   :group 'auto-complete)
 
 (defun ac-clang-candidate ()
-  (and ac-clang-auto-save
-       (buffer-modified-p)
-       (basic-save-buffer))
-  (save-restriction
-    (widen)
-    (apply 'ac-clang-call-process
-           ac-prefix
-           (ac-clang-build-complete-args (- (point) (length ac-prefix))))))
+  (unless (memq (get-text-property (point) 'face)
+                '(font-lock-comment-face
+                  font-lock-comment-delimiter-face
+                  font-lock-string-face))
+    (and ac-clang-auto-save
+         (buffer-modified-p)
+         (basic-save-buffer))
+    (save-restriction
+      (widen)
+      (apply 'ac-clang-call-process
+             ac-prefix
+             (ac-clang-build-complete-args (- (point) (length ac-prefix)))))))
 
 
 (defvar ac-template-start-point nil)
