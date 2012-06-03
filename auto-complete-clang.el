@@ -4,7 +4,7 @@
 
 ;; Author: Brian Jiang <brianjcj@gmail.com>
 ;; Keywords: completion, convenience
-;; Version: 0.1h
+;; Version: 0.1i
 
 ;; This program is free software; you can redistribute it and/or modify
 ;; it under the terms of the GNU General Public License as published by
@@ -221,15 +221,20 @@ This variable will typically contain include paths, e.g., ( \"-I~/MyProject\", \
   "Face for the clang selected candidate."
   :group 'auto-complete)
 
+(defsubst ac-in-string/comment ()
+  "Return non-nil if point is in a literal (a comment or string)."
+  (nth 8 (syntax-ppss)))
+
 (defun ac-clang-candidate ()
-  (and ac-clang-auto-save
-       (buffer-modified-p)
-       (basic-save-buffer))
-  (save-restriction
-    (widen)
-    (apply 'ac-clang-call-process
-           ac-prefix
-           (ac-clang-build-complete-args (- (point) (length ac-prefix))))))
+  (unless (ac-in-string/comment)
+    (and ac-clang-auto-save
+         (buffer-modified-p)
+         (basic-save-buffer))
+    (save-restriction
+      (widen)
+      (apply 'ac-clang-call-process
+             ac-prefix
+             (ac-clang-build-complete-args (- (point) (length ac-prefix)))))))
 
 
 (defvar ac-template-start-point nil)
