@@ -406,3 +406,4 @@ This variable will typically contain include paths, e.g., ( \"-I~/MyProject\", \
     (cache)
     (symbol . "t")))
 
+;;; auto-complete-clang.el ends here
