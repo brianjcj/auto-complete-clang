@@ -59,8 +59,14 @@ This variable will typically contain include paths, e.g., ( \"-I~/MyProject\", \
   :group 'auto-complete
   :type '(repeat (string :tag "Argument" "")))
 
-;;; The prefix header to use with Clang code completion. 
+;;; The prefix header to use with Clang code completion.
 (defvar ac-clang-prefix-header nil)
+
+(defcustom ac-clang-debug nil
+  "Whether or not to display error messages when the completion
+command fails."
+  :group 'auto-complete
+  :type 'boolean)
 
 ;;; Set the Clang prefix header
 (defun ac-clang-set-prefix-header (ph)
@@ -107,7 +113,7 @@ This variable will typically contain include paths, e.g., ( \"-I~/MyProject\", \
       (setq match (match-string-no-properties 1))
       (unless (string= "Pattern" match)
         (setq detailed_info (match-string-no-properties 2))
-      
+
         (if (string= match prev-match)
             (progn
               (when detailed_info
@@ -122,9 +128,8 @@ This variable will typically contain include paths, e.g., ( \"-I~/MyProject\", \
           (setq prev-match match)
           (when detailed_info
             (setq match (propertize match 'ac-clang-help detailed_info)))
-          (push match lines))))    
+          (push match lines))))
     lines))
-
 
 (defun ac-clang-handle-error (res args)
   (goto-char (point-min))
@@ -135,7 +140,8 @@ This variable will typically contain include paths, e.g., ( \"-I~/MyProject\", \
                   (buffer-substring-no-properties (point-min)
                                                   (1- (match-beginning 0)))
                 ;; Warn the user more agressively if no match was found.
-                (message "clang failed with error %d:\n%s" res cmd)
+                (when ac-clang-debug
+                  (message "clang failed with error %d:\n%s" res cmd))
                 (buffer-string))))
 
     (with-current-buffer buf
@@ -277,7 +283,7 @@ This variable will typically contain include paths, e.g., ( \"-I~/MyProject\", \
            (setq ac-template-candidates candidates)
            (setq ac-template-start-point (point))
            (ac-complete-template)
-           
+
            (unless (cdr candidates) ;; unless length > 1
              (message (replace-regexp-in-string "\n" "   ;    " help))))
           (t
