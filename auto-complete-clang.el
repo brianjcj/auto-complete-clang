@@ -372,6 +372,13 @@ This variable will typically contain include paths, e.g., ( \"-I~/MyProject\", \
              (unless (string= s "()")
                (setq s (replace-regexp-in-string "{#" "" s))
                (setq s (replace-regexp-in-string "#}" "" s))
+               ;;;KLUDGE -- objc argument list fix for yasnippet template
+               (let ((p1 (search "<#" s))
+                     (p2 (search "#>" s)))
+                 (when (or (and (find ?: s) (> p1 p2))
+                           (and (null p1) (null p2)))
+                   (setq s (concat ":<#" s "#>]"))))
+               ;;; KLUDGE end
                (cond ((featurep 'yasnippet)
                       (setq s (replace-regexp-in-string "<#" "${" s))
                       (setq s (replace-regexp-in-string "#>" "}" s))
