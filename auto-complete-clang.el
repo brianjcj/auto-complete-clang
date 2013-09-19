@@ -59,7 +59,7 @@ This variable will typically contain include paths, e.g., ( \"-I~/MyProject\", \
   :group 'auto-complete
   :type '(repeat (string :tag "Argument" "")))
 
-;;; The prefix header to use with Clang code completion. 
+;;; The prefix header to use with Clang code completion.
 (defvar ac-clang-prefix-header nil)
 
 ;;; Set the Clang prefix header
@@ -107,7 +107,7 @@ This variable will typically contain include paths, e.g., ( \"-I~/MyProject\", \
       (setq match (match-string-no-properties 1))
       (unless (string= "Pattern" match)
         (setq detailed_info (match-string-no-properties 2))
-      
+
         (if (string= match prev-match)
             (progn
               (when detailed_info
@@ -122,7 +122,7 @@ This variable will typically contain include paths, e.g., ( \"-I~/MyProject\", \
           (setq prev-match match)
           (when detailed_info
             (setq match (propertize match 'ac-clang-help detailed_info)))
-          (push match lines))))    
+          (push match lines))))
     lines))
 
 
@@ -277,7 +277,7 @@ This variable will typically contain include paths, e.g., ( \"-I~/MyProject\", \
            (setq ac-template-candidates candidates)
            (setq ac-template-start-point (point))
            (ac-complete-template)
-           
+
            (unless (cdr candidates) ;; unless length > 1
              (message (replace-regexp-in-string "\n" "   ;    " help))))
           (t
@@ -353,11 +353,11 @@ This variable will typically contain include paths, e.g., ( \"-I~/MyProject\", \
                     (dolist (arg sl)
                       (setq snp (concat snp ", ${" arg "}")))
                     (condition-case nil
-                        (yas/expand-snippet (concat "("  (substring snp 2) ")")
+                        (yas-expand-snippet (concat "("  (substring snp 2) ")")
                                             ac-template-start-point pos) ;; 0.6.1c
                       (error
                        ;; try this one:
-                       (ignore-errors (yas/expand-snippet
+                       (ignore-errors (yas-expand-snippet
                                        ac-template-start-point pos
                                        (concat "("  (substring snp 2) ")"))) ;; work in 0.5.7
                        )))
@@ -377,10 +377,10 @@ This variable will typically contain include paths, e.g., ( \"-I~/MyProject\", \
                       (setq s (replace-regexp-in-string "#>" "}" s))
                       (setq s (replace-regexp-in-string ", \\.\\.\\." "}, ${..." s))
                       (condition-case nil
-                          (yas/expand-snippet s ac-template-start-point pos) ;; 0.6.1c
+                          (yas-expand-snippet s ac-template-start-point pos) ;; 0.6.1c
                         (error
                          ;; try this one:
-                         (ignore-errors (yas/expand-snippet ac-template-start-point pos s)) ;; work in 0.5.7
+                         (ignore-errors (yas-expand-snippet ac-template-start-point pos s)) ;; work in 0.5.7
                          )))
                      ((featurep 'snippet)
                       (delete-region ac-template-start-point pos)
