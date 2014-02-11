@@ -191,7 +191,7 @@ This variable will typically contain include paths, e.g., ( \"-I~/MyProject\", \
           ac-clang-flags
           (when (stringp ac-clang-prefix-header)
             (list "-include-pch" (expand-file-name ac-clang-prefix-header)))
-          '("-Xclang" (concat "-code-completion-at=" (ac-clang-build-location pos)))
+          `("-Xclang" ,(concat "-code-completion-at=" (ac-clang-build-location pos)))
           (list (if ac-clang-auto-save buffer-file-name "-"))))
 
 
