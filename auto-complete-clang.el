@@ -185,14 +185,13 @@ This variable will typically contain include paths, e.g., ( \"-I~/MyProject\", \
              "c++"))))
 
 (defsubst ac-clang-build-complete-args (pos)
-  (append '("-cc1" "-fsyntax-only")
+  (append '("-fsyntax-only")
           (unless ac-clang-auto-save
             (list "-x" (ac-clang-lang-option)))
           ac-clang-flags
           (when (stringp ac-clang-prefix-header)
             (list "-include-pch" (expand-file-name ac-clang-prefix-header)))
-          '("-code-completion-at")
-          (list (ac-clang-build-location pos))
+          '("-Xclang" (concat "-code-completion-at=" (ac-clang-build-location pos)))
           (list (if ac-clang-auto-save buffer-file-name "-"))))
 
 
